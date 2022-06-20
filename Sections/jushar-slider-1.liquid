@@ -1,0 +1,353 @@
+{{ 'slick.css' | asset_url | stylesheet_tag }}
+    {{ 'jushar-slider-1.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'slick.min.js' | asset_url }}" defer="defer"></script>
+
+    <div class="page-width">
+    <div class="jushar_slider_1 position-relative row">
+        <div class="col-md-4">
+        <div class="jushar_slider_left">
+            <div class="jushar_slider_1_title">
+            {{ section.settings.jushar_slider_title }}
+            </div>
+            <div class="jushar_slider_dots">
+
+            </div>
+            <div class="jushar_bottom_c">
+            {{ section.settings.custom_liquid }}
+            </div>
+        </div>
+        </div>
+        <div class="col-md-4">
+        <div class="position-absolute">
+            <div class="slick_jushar_slider_1">
+            {% for block in section.blocks %}
+            {% assign product = block.settings.product %}
+            <div class="slick_jushar_count{{ forloop.index }}">
+                <div class="product_img">
+                {% if product.selected_or_first_available_variant.featured_media != null %}
+                {% assign media = product.selected_or_first_available_variant.featured_media %}
+                <img
+                srcset="
+                {% if media.preview_image.width >= 493 %}{{ media.preview_image | image_url: width: 493 }} 493w,{% endif %}
+                {% if media.preview_image.width >= 600 %}{{ media.preview_image | image_url: width: 600 }} 600w,{% endif %}
+                {% if media.preview_image.width >= 713 %}{{ media.preview_image | image_url: width: 713 }} 713w,{% endif %}
+                {% if media.preview_image.width >= 823 %}{{ media.preview_image | image_url: width: 823 }} 823w,{% endif %}
+                {% if media.preview_image.width >= 990 %}{{ media.preview_image | image_url: width: 990 }} 990w,{% endif %}
+                {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
+                {% if media.preview_image.width >= 1206 %}{{ media.preview_image | image_url: width: 1206 }} 1206w,{% endif %}
+                {% if media.preview_image.width >= 1346 %}{{ media.preview_image | image_url: width: 1346 }} 1346w,{% endif %}
+                {% if media.preview_image.width >= 1426 %}{{ media.preview_image | image_url: width: 1426 }} 1426w,{% endif %}
+                {% if media.preview_image.width >= 1646 %}{{ media.preview_image | image_url: width: 1646 }} 1646w,{% endif %}
+                {% if media.preview_image.width >= 1946 %}{{ media.preview_image | image_url: width: 1946 }} 1946w,{% endif %}
+                {{ media.preview_image | image_url }} {{ media.preview_image.width }}w"
+                src="{{ media | image_url: width: 1946 }}"
+                sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | times: media_width | round }}px, (min-width: 990px) calc({{ media_width | times: 100 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+                width="973"
+                height="{{ 973 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+                alt="{{ media.preview_image.alt | escape }}"
+                >
+                {% endif %}
+                </div>
+                <div class="product_info hi_{{ section.id }}-{{ forloop.index }}">
+                    <button class="more more5" id="{{ section.id }}-{{ forloop.index }}"></button>
+                    <div class="tag-product {{ block.settings.product }} {{ section.id }}-{{ forloop.index }}">	
+                    <div class="fix-block-w">
+                    {%- assign product = block.settings.product -%}
+                    <a{% if product == blank %} role="link" aria-disabled="true"{% else %} href="{{ product.url }}"{% endif %} class="link product__view-details animate-arrow">
+                    <h2 class="product__title" {{ block.shopify_attributes }}>
+                        {%- if product.title != blank -%}
+                        {{ product.title | escape }}
+                        {%- else -%}
+                        {{ 'onboarding.product_title' | t }}
+                        {%- endif -%}
+                    </h2>
+                    </a>
+                    <div class="no-js-hidden" id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
+                        {%- render 'price', product: product, use_variant: true, show_badges: true, price_class: 'price--large' -%}
+                    </div>
+
+                    {%- if product != blank -%}
+                    <div {{ block.shopify_attributes }}>
+                    <form action="/cart/add" method="post" enctype="multipart/form-data" id="add-to-cart-{{ product.handle }}-{{ collection.handle }}-{{ section.id }}">
+                        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                        {{ form | payment_terms }}
+                    </form>
+                    </div>
+                    {%- endif -%}
+                    <noscript class="product-form__noscript-wrapper-{{ section.id }}">
+                        <div class="product-form__input{% if product.has_only_default_variant %} hidden{% endif %}">
+                        <label class="form__label" for="Variants-{{ section.id }}">{{ 'products.product.product_variants' | t }}</label>
+                        <div class="select">
+                            <select name="id" id="Variants-{{ section.id }}" class="select__select" form="{{ product_form_id }}">
+                            {%- for variant in product.variants -%}
+                                <option
+                                {% if variant == product.selected_or_first_available_variant %}selected="selected"{% endif %}
+                                {% if variant.available == false %}disabled{% endif %}
+                                value="{{ variant.id }}"
+                                >
+                                {{ variant.title }}
+                                {%- if variant.available == false %} - {{ 'products.product.sold_out' | t }}{% endif %}
+                                - {{ variant.price | money | strip_html }}
+                                </option>
+                            {%- endfor -%}
+                            </select>
+                            {% render 'icon-caret' %}
+                        </div>
+                        </div>
+                    </noscript>
+
+                    <div class="product-form__input product-form__quantity{% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_vertical_offset < 0 %} product-form__quantity-top{% endif %}" {{ block.shopify_attributes }}>
+                        <label class="form__label" for="Quantity-{{ section.id }}">
+                        {{ 'products.product.quantity.label' | t }}
+                        </label>
+                        <quantity-input class="quantity">
+                        <button class="quantity__button no-js-hidden" name="minus" type="button">
+                            <span class="visually-hidden">{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}</span>
+                            {% render 'icon-minus' %}
+                        </button>
+                        <input class="quantity__input"
+                            type="number"
+                            name="quantity"
+                            id="Quantity-{{ section.id }}"
+                            min="1"
+                            value="1"
+                            form="{{ product_form_id }}"
+                            >
+                        <button class="quantity__button no-js-hidden" name="plus" type="button">
+                            <span class="visually-hidden">{{ 'products.product.quantity.increase' | t: product: product.title | escape }}</span>
+                            {% render 'icon-plus' %}
+                        </button>
+                        </quantity-input>
+                    </div>
+
+                    <div {{ block.shopify_attributes }}>
+                        {%- if product != blank -%}
+                        <product-form class="product-form">
+                            <div class="product-form__error-message-wrapper" role="alert" hidden>
+                            <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-error" viewBox="0 0 13 13">
+                                <circle cx="6.5" cy="6.50049" r="5.5" stroke="white" stroke-width="2"/>
+                                <circle cx="6.5" cy="6.5" r="5.5" fill="#EB001B" stroke="#EB001B" stroke-width="0.7"/>
+                                <path d="M5.87413 3.52832L5.97439 7.57216H7.02713L7.12739 3.52832H5.87413ZM6.50076 9.66091C6.88091 9.66091 7.18169 9.37267 7.18169 9.00504C7.18169 8.63742 6.88091 8.34917 6.50076 8.34917C6.12061 8.34917 5.81982 8.63742 5.81982 9.00504C5.81982 9.37267 6.12061 9.66091 6.50076 9.66091Z" fill="white"/>
+                                <path d="M5.87413 3.17832H5.51535L5.52424 3.537L5.6245 7.58083L5.63296 7.92216H5.97439H7.02713H7.36856L7.37702 7.58083L7.47728 3.537L7.48617 3.17832H7.12739H5.87413ZM6.50076 10.0109C7.06121 10.0109 7.5317 9.57872 7.5317 9.00504C7.5317 8.43137 7.06121 7.99918 6.50076 7.99918C5.94031 7.99918 5.46982 8.43137 5.46982 9.00504C5.46982 9.57872 5.94031 10.0109 6.50076 10.0109Z" fill="white" stroke="#EB001B" stroke-width="0.7">
+                            </svg>
+                            <span class="product-form__error-message"></span>
+                            </div>
+
+                            {%- form 'product', product, id: product_form_id, class: 'form', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+                            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" disabled>
+                            <div class="product-form__buttons">
+                                <button
+                                type="submit"
+                                name="add"
+                                data-add-to-cart 
+                                class="js-go-cart-add-to-cart button button--full-width {% if block.settings.show_dynamic_checkout and product.selling_plan_groups == empty %}button--secondary{% else %}button--primary{% endif %}"
+                                {%- if product.selected_or_first_available_variant.available == false -%}disabled="disabled"{%- endif -%}
+                                >
+                                    <span>
+                                    {%- if product.selected_or_first_available_variant.available -%}
+                                        {{ 'products.product.add_to_cart' | t }}
+                                    {%- else -%}
+                                        {{ 'products.product.sold_out' | t }}
+                                    {%- endif -%}
+                                    </span>
+                                    <div class="loading-overlay__spinner hidden">
+                                    <svg aria-hidden="true" focusable="false" role="presentation" class="spinner" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+                                        <circle class="path" fill="none" stroke-width="6" cx="33" cy="33" r="30"></circle>
+                                    </svg>
+                                    </div>
+                                </button>
+
+                                {{ form | payment_button }}
+                            </div>
+                            {%- endform -%}
+                        </product-form>
+                        {%- else -%}
+                        <div class="product-form">
+                            <div class="product-form__buttons form">
+                            <button
+                                type="submit"
+                                name="add"
+                                class="product-form__submit button button--full-width button--primary"
+                                disabled
+                            >
+                                {{ 'products.product.sold_out' | t }}
+                            </button>
+                            </div>
+                        </div>
+                        {%- endif -%}
+                    </div>
+                    <a{% if product == blank %} role="link" aria-disabled="true"{% else %} href="{{ product.url }}"{% endif %} class="link product__view-details animate-arrow">
+                        {{ 'products.product.view_full_details' | t }}
+                        {% render 'icon-arrow' %}
+                    </a>
+                    </div>
+                </div>
+                </div>
+                <script>
+                    $( document ).ready(function(){
+                    $('#{{ section.id }}-{{ forloop.index }}').click(function(){
+                        $('.hi_{{ section.id }}-{{ forloop.index }} .tag-product').toggleClass("active");
+                    });
+                    });
+                </script>
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+        </div>
+        <div class="col-md-4">
+        <div class="slick_jushar_slider_title">
+            {% for block in section.blocks %}
+            {% assign product = block.settings.product %}
+            <div>
+            <div class="product_title_{{ forloop.index }}">
+                {%- if product.title != blank -%}
+                {{ product.title | escape }}
+                {%- else -%}
+                {{ 'onboarding.product_title' | t }}
+                {%- endif -%}
+            </div>
+            {% if product.featured_media %}
+                {%- if product.media[1] != nil -%}
+                <img
+                        srcset="{%- if product.media[1].width >= 165 -%}{{ product.media[1] | image_url: width: 165 }} 165w,{%- endif -%}
+                                {%- if product.media[1].width >= 360 -%}{{ product.media[1] | image_url: width: 360 }} 360w,{%- endif -%}
+                                {%- if product.media[1].width >= 533 -%}{{ product.media[1] | image_url: width: 533 }} 533w,{%- endif -%}
+                                {%- if product.media[1].width >= 720 -%}{{ product.media[1] | image_url: width: 720 }} 720w,{%- endif -%}
+                                {%- if product.media[1].width >= 940 -%}{{ product.media[1] | image_url: width: 940 }} 940w,{%- endif -%}
+                                {%- if product.media[1].width >= 1066 -%}{{ product.media[1] | image_url: width: 1066 }} 1066w,{%- endif -%}
+                                {{ product.media[1] | image_url }} {{ media[1].width }}w"
+                        src="{{ product.media[1] | image_url: width: 533 }}"
+                        sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 130 | divided_by: 4 }}px, (min-width: 990px) calc((100vw - 130px) / 4), (min-width: 750px) calc((100vw - 120px) / 3), calc((100vw - 35px) / 2)"
+                        alt="{{ product.media[1].alt | escape }}"
+                        class="motion-reduce"
+                        loading="lazy"
+                        width="{{ product.media[1].width }}"
+                        height="{{product.media[1].height }}"
+                        >
+                {%- endif -%}
+            {%- endif -%}
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+    </div>
+    </div>
+    <style>
+    {% for block in section.blocks %}
+        .jushar_slider_dots .slick-dots button#slick-slide-control0{{ forloop.index0 }}{background:{{ block.settings.dot_color }};}
+        .jushar_slider_dots .slick-dots li:nth-child({{ forloop.index }}).slick-active{border-color:{{ block.settings.dot_color }};}
+        .product_title_{{ forloop.index }}{color:{{ block.settings.dot_color }}; font-size:50px; font-weight: 600; }
+        .slick_jushar_slider_title .slick-track #slick-slide1{{ forloop.index0 }}.slick-active img{transform: rotate(90deg);transition: 1s;}
+        
+        @media only screen and (max-width: 768px) {
+        .product_title_{{ forloop.index }}{font-size:36px;margin-top: 15px;}
+        }
+        
+        @media only screen and (min-width: 768px) {
+        .product_title_{{ forloop.index }}{font-size: 30px;margin-top: 0;}
+        }
+        @media only screen and (min-width: 1220px) {
+        .product_title_{{ forloop.index }}{font-size:40px;}
+        }
+    {% endfor %}
+    </style>
+
+    <script>
+    $( document ).ready(function() {
+        $('.slick_jushar_slider_1').slick({
+            dots: true,
+            prevArrow: false,
+            nextArrow: false,
+            appendDots: $('.jushar_slider_dots'),
+            infinite: true,
+            swipe: false
+        });
+    });
+    $( document ).ready(function() {
+        $('.slick_jushar_slider_title').slick({
+            dots: true,
+            prevArrow: false,
+            nextArrow: false,
+            infinite: true,
+            swipe: false
+        });
+        
+        $('.product_info').on('click', function() {
+        
+            $(this).toggleClass('open-state');
+
+        });
+    });
+
+        
+    $(document).on('click', '#slick-slide-control00', function() {
+        $("#slick-slide-control10").click();
+    });
+        
+    $(document).on('click', '#slick-slide-control01', function() {
+        $("#slick-slide-control11").click();
+    });
+
+    $(document).on('click', '#slick-slide-control02', function() {
+        $("#slick-slide-control12").click();
+    });
+    </script>
+
+    {% schema %}
+    {
+    "name": "Jushar Slider 1",
+    "tag": "section",
+    "class": "section",
+    "max_blocks": 3,
+    "settings": [
+    {
+    "type": "text",
+    "id": "jushar_slider_title",
+    "default": "Double-Walled, Stainless Steel Design",
+    "label": "Add Jushar Slider Title"
+    },
+    {
+    "type": "liquid",
+    "id": "custom_liquid",
+    "label": "t:sections.custom-liquid.settings.custom_liquid.label",
+    "info": "t:sections.custom-liquid.settings.custom_liquid.info"
+    }
+    ],
+    "blocks": [
+    {
+    "type": "column",
+    "name": "Jushar Slider",
+    "settings": [
+    {
+    "type": "product",
+    "id": "product",
+    "label": "Select Product"
+    },
+    {
+    "type": "color",
+    "id": "dot_color",
+    "label": "Select dot Color",
+    "default": "#ffffff"
+    }
+    ]
+    }
+    ],
+    "presets": [
+    {
+    "name": "Jushar Slider 1",
+    "blocks": [
+    {
+    "type": "column"
+    }
+    ]
+    }
+    ]	
+    }
+    {% endschema %}
+
+    {% stylesheet %}
+    {% endstylesheet %}
+
+    {% javascript %}
+    {% endjavascript %}
